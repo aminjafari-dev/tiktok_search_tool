@@ -5,7 +5,7 @@ Centralizes all configurable parameters and constants
 
 # Browser Configuration
 BROWSER_CONFIG = {
-    "headless": True,  # Run browser in background
+    "headless": False,  # Run browser in foreground so user can see it
     "no_sandbox": True,
     "disable_dev_shm_usage": True,
     "disable_gpu": True,
@@ -17,9 +17,9 @@ BROWSER_CONFIG = {
 SEARCH_CONFIG = {
     "default_max_results": 20,
     "page_load_timeout": 30,  # seconds
-    "dynamic_content_wait": 10,  # seconds
-    "scroll_pause": 3,  # seconds between scrolls
-    "scroll_iterations": 3
+    "dynamic_content_wait": 15,  # seconds - increased for visibility
+    "scroll_pause": 5,  # seconds between scrolls - increased for visibility
+    "scroll_iterations": 5  # increased number of scrolls
 }
 
 # URL Patterns for finding TikTok videos

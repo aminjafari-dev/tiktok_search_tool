@@ -60,17 +60,19 @@ class BrowserManager:
             bool: True if navigation successful, False otherwise
         """
         try:
-            print(MESSAGES["loading"].format(url=url))
+            print(f"🌐 Navigating to: {url}")
+            print("⏳ Opening TikTok search page...")
             self.driver.get(url)
             
             # Wait for the page to load
-            print(MESSAGES["waiting_page"])
+            print("⏳ Waiting for page to load...")
             wait = WebDriverWait(self.driver, SEARCH_CONFIG["page_load_timeout"])
             
             try:
                 # Wait for any video elements to appear
                 wait.until(EC.presence_of_element_located((By.TAG_NAME, "a")))
                 print("✅ Page loaded successfully")
+                print("📱 TikTok search page is now visible in browser")
             except:
                 print("⚠️  Page load timeout, but continuing...")
             
@@ -82,15 +84,21 @@ class BrowserManager:
     
     def wait_for_dynamic_content(self):
         """Wait for dynamic content to load"""
-        print(MESSAGES["waiting_content"])
+        print("⏳ Waiting for TikTok content to load...")
+        print("🔄 TikTok uses dynamic loading - waiting for videos to appear...")
         time.sleep(SEARCH_CONFIG["dynamic_content_wait"])
+        print("✅ Dynamic content should be loaded now")
     
     def scroll_to_load_content(self):
         """Scroll down to load more content"""
-        print(MESSAGES["scrolling"])
+        print("📜 Starting to scroll to load more videos...")
         for i in range(SEARCH_CONFIG["scroll_iterations"]):
+            print(f"📜 Scroll {i+1}/{SEARCH_CONFIG['scroll_iterations']} - Loading more videos...")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(SEARCH_CONFIG["scroll_pause"])
+            print(f"✅ Scroll {i+1} completed - waiting for content to load...")
+        
+        print("🎯 Finished scrolling - all available videos should be loaded")
     
     def get_page_source(self):
         """
