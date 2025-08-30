@@ -58,6 +58,11 @@ MESSAGES = {
     "file_info": "📊 File contains {count} video links",
     "search_complete": "🎯 Search complete! Found {count} videos",
     "results_saved": "📁 Results saved to: {filename}",
+    "login_required": "🔐 Login required for full search results",
+    "login_success": "✅ Login successful - full results available",
+    "login_limited": "⚠️  Limited results (6 videos) for non-logged-in users",
+    "auto_login": "🔄 Automatically redirecting to login/register page",
+    "login_register": "📝 You can login to existing account or register a new one",
     "usage_examples": [
         "python tiktok_search.py 'dance videos'",
         "python tiktok_search.py 'funny cats'", 

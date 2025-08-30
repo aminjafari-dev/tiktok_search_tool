@@ -2,10 +2,12 @@
 """
 Simple TikTok Search Tool - Main Entry Point
 A modular tool to search TikTok videos and save links to Excel
+Now with integrated login management for better search results
 """
 
 import sys
 from tiktok_searcher import TikTokSearcher
+from login_manager import TikTokSearchWithLogin
 from utils import validate_query
 from config import MESSAGES
 
@@ -47,11 +49,12 @@ def display_welcome():
     print(MESSAGES["welcome"])
     print("=" * 50)
     print("🔍 This tool searches TikTok and saves video links to Excel")
+    print("🔐 Automatic login management for enhanced search results")
     print("=" * 50)
 
 
 def main():
-    """Main function to run the TikTok search tool"""
+    """Main function to run the TikTok search tool with automatic login management"""
     display_welcome()
     
     # Get user input
@@ -59,14 +62,24 @@ def main():
     if not query:
         return
     
-    # Create searcher and run search
-    with TikTokSearcher() as searcher:
-        success = searcher.search_and_save(query, max_results)
+    print(f"\n🔍 Starting search for: {query}")
+    print("🔐 Checking login status and managing authentication automatically...")
+    
+    # Use enhanced searcher with automatic login management
+    with TikTokSearchWithLogin() as enhanced_searcher:
+        videos = enhanced_searcher.search_with_login(query, max_results)
         
-        if success:
-            print("\n🎉 Search completed successfully!")
+        if videos:
+            # Save results using the original searcher
+            with TikTokSearcher() as searcher:
+                success = searcher.save_videos_to_excel(videos)
+                if success:
+                    print(f"\n🎉 Search completed successfully! Found {len(videos)} videos")
+                    print("📁 Results saved to Excel file")
+                else:
+                    print("\n❌ Search completed but failed to save results.")
         else:
-            print("\n❌ Search failed. Please try again.")
+            print("\n❌ No videos found.")
 
 
 if __name__ == "__main__":

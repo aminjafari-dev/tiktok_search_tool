@@ -137,6 +137,19 @@ class TikTokSearcher:
             if self.excel_manager:
                 self.excel_manager.cleanup()
     
+    def save_videos_to_excel(self, videos, filename=None):
+        """
+        Save pre-extracted videos to Excel file (for use with login manager)
+        
+        Args:
+            videos (list): List of video dictionaries
+            filename (str): Excel filename (optional)
+            
+        Returns:
+            bool: True if save successful, False otherwise
+        """
+        return self.save_to_excel(videos, filename)
+    
     def search_and_save(self, query, max_results=None, filename=None):
         """
         Search for videos and save to Excel
