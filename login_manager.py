@@ -76,24 +76,42 @@ class TikTokLoginManager:
     def _setup_driver(self):
         """Setup Chrome driver for login operations"""
         try:
+            print("🔧 Setting up Chrome browser...")
             chrome_options = Options()
             
-            # Apply browser configuration (non-headless for login)
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--disable-gpu")
+            # Apply browser configuration with security in mind
+            if BROWSER_CONFIG["no_sandbox"]:
+                chrome_options.add_argument("--no-sandbox")
+            if BROWSER_CONFIG["disable_dev_shm_usage"]:
+                chrome_options.add_argument("--disable-dev-shm-usage")
+            if BROWSER_CONFIG["disable_gpu"]:
+                chrome_options.add_argument("--disable-gpu")
+            
+            # Add security and compatibility options to make Chrome more secure
+            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            chrome_options.add_experimental_option('useAutomationExtension', False)
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--disable-plugins")
+            chrome_options.add_argument("--disable-web-security")
+            chrome_options.add_argument("--allow-running-insecure-content")
+            
             chrome_options.add_argument(f"--window-size={BROWSER_CONFIG['window_size']}")
             chrome_options.add_argument(f"--user-agent={BROWSER_CONFIG['user_agent']}")
             
             # Don't run headless during login for better user experience
             # chrome_options.add_argument("--headless")
             
+            print("📥 Installing Chrome driver...")
             # Install and setup Chrome driver
             service = Service(ChromeDriverManager().install())
+            print("🚀 Starting Chrome browser...")
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            print("✅ Chrome browser started successfully!")
             
             # Load saved cookies if available
             if self.session_data.get('cookies'):
+                print("🍪 Loading saved session cookies...")
                 self.driver.get("https://www.tiktok.com")
                 for cookie in self.session_data['cookies']:
                     try:
@@ -105,6 +123,7 @@ class TikTokLoginManager:
             
         except Exception as e:
             print(f"❌ Error setting up Chrome driver: {e}")
+            print("💡 Make sure Chrome browser is installed on your system")
             return False
     
     def check_login_status(self):
@@ -171,7 +190,7 @@ class TikTokLoginManager:
     
     def prompt_for_login(self):
         """
-        Automatically redirect to TikTok login/register page
+        Automatically redirect to TikTok login/register page and wait for user
         
         Returns:
             bool: True if user successfully logged in, False otherwise
@@ -184,9 +203,9 @@ class TikTokLoginManager:
         print("📝 You can either login to existing account or create a new one")
         print("="*60)
         
-        print("\n🔄 Automatically redirecting to TikTok login/register page...")
+        print("\n🔄 Opening TikTok login/register page...")
         print("⏳ Please complete the login or registration process in the browser")
-        print("💡 The tool will automatically detect when you're logged in")
+        print("💡 The tool will wait for you to confirm when you're logged in")
         
         return self._perform_login()
     
@@ -201,45 +220,50 @@ class TikTokLoginManager:
             print("\n🔐 Starting TikTok login/register process...")
             print("📱 A browser window will open for you to login or register")
             print("⏳ Please complete the login/registration process in the browser")
-            print("💡 After completing login/registration, type 'Y' in this terminal")
+            print("💡 Take your time - the tool will wait for you")
+            
+            # Ensure browser is initialized
+            if not self.driver:
+                print("🔧 Browser not initialized, setting up now...")
+                if not self._setup_driver():
+                    print("❌ Failed to initialize browser")
+                    return False
+            else:
+                print("✅ Browser already initialized")
             
             # Navigate to TikTok login page
+            print("🌐 Navigating to TikTok login page...")
             self.driver.get("https://www.tiktok.com/login")
             time.sleep(3)
+            print("✅ TikTok login page loaded")
             
-            # Wait for manual confirmation from user
+            # Wait indefinitely for user to complete login
             print("\n" + "="*60)
-            print("⏳ WAITING FOR MANUAL CONFIRMATION")
+            print("⏳ WAITING FOR YOU TO COMPLETE LOGIN/REGISTRATION")
             print("="*60)
             print("📝 Please complete your login or registration in the browser")
+            print("💡 The tool will wait as long as you need")
             print("✅ When you're fully logged in, come back here and type 'Y'")
             print("❌ If you want to cancel, type 'N'")
             print("="*60)
             
             while True:
-                confirmation = input("\n🤔 Are you logged in and ready to continue? (Y/N): ").strip().upper()
+                confirmation = input("\n🤔 Did you log in to your account? (Y/N): ").strip().upper()
                 
                 if confirmation == 'Y':
-                    print("✅ Confirmed! Checking login status...")
+                    print("✅ Confirmed! Proceeding with search...")
                     
-                    # Verify login status
-                    if self.check_login_status():
-                        print("🎉 Login/Registration successful!")
-                        
-                        # Save session data
-                        self.session_data['cookies'] = self.driver.get_cookies()
-                        self.session_data['login_time'] = time.time()
-                        self._save_session()
-                        
-                        return True
-                    else:
-                        print("❌ Login status check failed. Please make sure you're fully logged in.")
-                        print("💡 Try refreshing the page or completing any verification steps")
-                        continue
+                    # Save session data
+                    self.session_data['cookies'] = self.driver.get_cookies()
+                    self.session_data['login_time'] = time.time()
+                    self._save_session()
+                    
+                    return True
                         
                 elif confirmation == 'N':
-                    print("❌ Login cancelled by user")
-                    return False
+                    print("⏳ No problem! Take your time to complete the login process.")
+                    print("💡 When you're ready, come back and type 'Y'")
+                    continue
                 else:
                     print("❌ Please enter 'Y' for yes or 'N' for no")
             
@@ -254,11 +278,7 @@ class TikTokLoginManager:
         Returns:
             bool: True if logged in (either already or after prompt), False if user chose not to login
         """
-        # First check if already logged in
-        if self.check_login_status():
-            return True
-        
-        # If not logged in, prompt for login
+        # Always prompt for login confirmation, don't auto-check
         return self.prompt_for_login()
     
     def get_login_status_message(self):
@@ -322,18 +342,17 @@ class TikTokSearchWithLogin:
             list: List of video dictionaries
         """
         print(f"🚀 Starting TikTok search for: {query}")
-        print(f"🔐 Login status: {self.login_manager.get_login_status_message()}")
         
-        # Always ensure login for better results
-        if not self.login_manager.is_logged_in:
-            print("🔐 User not logged in - redirecting to login/register page...")
-            if not self.login_manager.ensure_login():
-                print("⚠️  Login failed - continuing with limited results (6 videos max)")
-                max_results = min(max_results or 20, 6)
-            else:
-                print("✅ Login successful - full search results available")
+        # Always prompt for login confirmation
+        print("🔐 Opening TikTok login/register page...")
+        print("⏳ Please complete the login process in the browser")
+        print("💡 The tool will wait for your confirmation")
+        
+        if not self.login_manager.ensure_login():
+            print("⚠️  Login failed - continuing with limited results (6 videos max)")
+            max_results = min(max_results or 20, 6)
         else:
-            print("✅ Already logged in - proceeding with search")
+            print("✅ Login successful - full search results available")
         
         # Use the same browser instance for search
         try:
@@ -347,6 +366,14 @@ class TikTokSearchWithLogin:
             
             # Use the existing browser from login manager
             driver = self.login_manager.driver
+            
+            # Ensure browser is available
+            if not driver:
+                print("❌ Browser not available for search")
+                print("💡 This might happen if login process failed")
+                return []
+            else:
+                print("✅ Using existing browser for search")
             
             # Build search URL
             search_url = build_search_url(query)

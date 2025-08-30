@@ -63,7 +63,7 @@ def main():
         return
     
     print(f"\n🔍 Starting search for: {query}")
-    print("🔐 Checking login status and managing authentication automatically...")
+    print("🔐 Opening TikTok login page and waiting for your confirmation...")
     
     # Use enhanced searcher with automatic login management
     with TikTokSearchWithLogin() as enhanced_searcher:

@@ -37,6 +37,15 @@ class BrowserManager:
             if BROWSER_CONFIG["disable_gpu"]:
                 chrome_options.add_argument("--disable-gpu")
             
+            # Add security and compatibility options to make Chrome more secure
+            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            chrome_options.add_experimental_option('useAutomationExtension', False)
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--disable-plugins")
+            chrome_options.add_argument("--disable-web-security")
+            chrome_options.add_argument("--allow-running-insecure-content")
+            
             chrome_options.add_argument(f"--window-size={BROWSER_CONFIG['window_size']}")
             chrome_options.add_argument(f"--user-agent={BROWSER_CONFIG['user_agent']}")
             

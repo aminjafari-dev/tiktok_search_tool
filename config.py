@@ -6,11 +6,11 @@ Centralizes all configurable parameters and constants
 # Browser Configuration
 BROWSER_CONFIG = {
     "headless": False,  # Run browser in foreground so user can see it
-    "no_sandbox": True,
-    "disable_dev_shm_usage": True,
-    "disable_gpu": True,
+    "no_sandbox": False,  # Enable sandbox for better security
+    "disable_dev_shm_usage": False,  # Enable shared memory usage
+    "disable_gpu": False,  # Enable GPU acceleration
     "window_size": "1920,1080",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
 # Search Configuration
