@@ -7,6 +7,8 @@ A modular Python tool to search TikTok videos and save results to Excel files. T
 - 🔍 **Search TikTok videos** by keywords or phrases
 - 🔐 **Login management** for enhanced search results (bypasses 6-video limit)
 - 📊 **Export to Excel** with organized data (URL, username, video ID, title)
+- 🔄 **Duplicate prevention** - automatically checks for existing links and preserves data
+- ⏰ **Timestamp tracking** - records when each video link was added to the database
 - 🚀 **Modular architecture** for easy maintenance and extension
 - 🛡️ **Error handling** with graceful fallbacks
 - 📝 **Configurable settings** for different use cases
@@ -25,7 +27,11 @@ tiktok_search_tool/
 ├── utils.py               # Utility functions
 ├── config.py              # Configuration settings
 ├── test_integrated_login.py # Test script for login functionality
+├── test_timestamp_feature.py # Test script for timestamp functionality
 ├── requirements.txt       # Python dependencies
+├── excel_files/           # Directory containing all Excel output files
+│   ├── tiktok_search_*.xlsx # Generated Excel files with search results
+│   └── ...                # Additional Excel files
 └── README.md             # This file
 ```
 
@@ -148,7 +154,7 @@ EXCEL_CONFIG = {
 
 ## Output Format
 
-The tool generates Excel files with the following columns:
+The tool generates Excel files in the `excel_files/` directory with the following columns:
 
 | Column | Description |
 |--------|-------------|
@@ -157,6 +163,13 @@ The tool generates Excel files with the following columns:
 | Video ID | Unique video identifier |
 | Title | Video title/description |
 | Search Query | Original search term used |
+| Added Date | Timestamp when the video was discovered and added |
+
+**File Location**: All Excel files are automatically saved to the `excel_files/` directory to keep the project root organized.
+
+**Duplicate Prevention**: The tool automatically checks for existing links before adding new ones. If you run multiple searches, the Excel file will accumulate unique results without duplicates. Existing data is always preserved.
+
+**Timestamp Tracking**: Each video entry includes an "Added Date" timestamp showing when the video was discovered and added to the database. This helps track when searches were performed and identify the age of video data.
 
 ## Error Handling
 
@@ -185,6 +198,8 @@ The tool includes comprehensive error handling:
 - Consider running in non-headless mode for debugging
 - Use login management for better search results (bypasses 6-video limit)
 - Session persistence reduces login time for subsequent searches
+- Run multiple searches to build a comprehensive database of unique videos
+- The tool automatically prevents duplicates, so you can safely run the same search multiple times
 
 ## Dependencies
 

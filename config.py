@@ -34,9 +34,9 @@ TIKTOK_URL_PATTERNS = [
 
 # Excel Configuration
 EXCEL_CONFIG = {
-    "default_filename": "tiktok_search_results.xlsx",
+    "default_filename": "excel_files/tiktok_search_results.xlsx",
     "sheet_name": "TikTok Videos",
-    "headers": ['URL', 'Username', 'Video ID', 'Title', 'Search Query'],
+    "headers": ['URL', 'Username', 'Video ID', 'Title', 'Search Query', 'Added Date'],
     "max_column_width": 50
 }
 

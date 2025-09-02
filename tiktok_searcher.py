@@ -3,6 +3,7 @@ TikTok Search Tool - Main Search Logic
 Orchestrates the search process using browser, utils, and Excel modules
 """
 
+import datetime
 from browser_manager import BrowserManager
 from excel_manager import ExcelManager
 from utils import (
@@ -79,12 +80,16 @@ class TikTokSearcher:
                     # Extract username and video ID
                     username, video_id = extract_video_info(link)
                     
+                    # Get current timestamp for when this video was added
+                    current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    
                     video_info = {
                         'url': link,
                         'username': username,
                         'video_id': video_id,
                         'title': f"Video by @{username}",
-                        'search_query': query
+                        'search_query': query,
+                        'added_date': current_timestamp
                     }
                     videos.append(video_info)
                 

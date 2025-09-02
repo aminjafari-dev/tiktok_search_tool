@@ -34,10 +34,10 @@ def generate_filename(query, prefix="tiktok_search"):
         prefix (str): Prefix for the filename
         
     Returns:
-        str: Generated filename
+        str: Generated filename with excel_files folder path
     """
     safe_query = sanitize_filename(query)
-    return f"{prefix}_{safe_query}.xlsx"
+    return f"excel_files/{prefix}_{safe_query}.xlsx"
 
 
 def extract_video_info(url):
