@@ -3,53 +3,53 @@ GUI Styling and Theme Configuration
 Defines colors, fonts, and styling constants for the TikTok Search Tool GUI
 """
 
-# Color Scheme - Modern Dark Theme with TikTok Accents
+# Color Scheme - Popular and Professional Colors
 COLORS = {
-    # Primary Colors - TikTok Brand
-    'primary': '#FF0050',      # TikTok Pink
-    'primary_dark': '#E6004A',
-    'primary_light': '#FF3366',
-    'primary_gradient': '#FF1744',
+    # Primary Colors - Professional Blue
+    'primary': '#007ACC',      # Professional Blue
+    'primary_dark': '#005A9E',
+    'primary_light': '#4A9EFF',
+    'primary_gradient': '#0066CC',
     
-    # Background Colors - Dark Theme
-    'bg_primary': '#1A1A1A',   # Dark Background
-    'bg_secondary': '#2D2D2D', # Slightly lighter dark
-    'bg_tertiary': '#3A3A3A',  # Card backgrounds
-    'bg_hover': '#404040',     # Hover states
-    'bg_dark': '#0F0F0F',      # Very dark
+    # Background Colors - Clean Light Theme
+    'bg_primary': '#FFFFFF',   # Pure White
+    'bg_secondary': '#F5F5F5', # Light Gray
+    'bg_tertiary': '#E8E8E8',  # Card backgrounds
+    'bg_hover': '#E0E0E0',     # Hover states
+    'bg_dark': '#333333',      # Dark text areas
     
     # Text Colors - High Contrast
-    'text_primary': '#FFFFFF', # Pure white
-    'text_secondary': '#B0B0B0', # Light gray
-    'text_tertiary': '#808080', # Medium gray
+    'text_primary': '#333333', # Dark Gray
+    'text_secondary': '#666666', # Medium Gray
+    'text_tertiary': '#999999', # Light Gray
     'text_light': '#FFFFFF',   # White
-    'text_success': '#4CAF50', # Modern green
-    'text_warning': '#FF9800', # Modern orange
-    'text_error': '#F44336',   # Modern red
-    'text_info': '#2196F3',    # Modern blue
+    'text_success': '#28A745', # Bootstrap Green
+    'text_warning': '#FFC107', # Bootstrap Yellow
+    'text_error': '#DC3545',   # Bootstrap Red
+    'text_info': '#17A2B8',    # Bootstrap Info Blue
     
     # Border Colors
-    'border_light': '#404040',
-    'border_medium': '#555555',
-    'border_dark': '#666666',
-    'border_accent': '#FF0050',
+    'border_light': '#E0E0E0',
+    'border_medium': '#CCCCCC',
+    'border_dark': '#999999',
+    'border_accent': '#007ACC',
     
-    # Status Colors - Dark Theme
-    'status_success': '#1B5E20',
-    'status_warning': '#E65100',
-    'status_error': '#B71C1C',
-    'status_info': '#0D47A1',
+    # Status Colors - Light Theme
+    'status_success': '#D4EDDA',
+    'status_warning': '#FFF3CD',
+    'status_error': '#F8D7DA',
+    'status_info': '#D1ECF1',
     
-    # Accent Colors
-    'accent_blue': '#2196F3',
-    'accent_green': '#4CAF50',
-    'accent_orange': '#FF9800',
-    'accent_purple': '#9C27B0',
+    # Accent Colors - Popular Colors
+    'accent_blue': '#007ACC',
+    'accent_green': '#28A745',
+    'accent_orange': '#FD7E14',
+    'accent_purple': '#6F42C1',
     
     # Special Effects
     'shadow': '#000000',
-    'highlight': '#FF0050',
-    'glass': 'rgba(255, 255, 255, 0.1)'
+    'highlight': '#007ACC',
+    'glass': 'rgba(0, 0, 0, 0.1)'
 }
 
 # Font Configuration
@@ -73,14 +73,14 @@ LAYOUT = {
     'window_min_height': 600
 }
 
-# Button Styles - Modern Dark Theme
+# Button Styles - Popular and Professional
 BUTTON_STYLES = {
     'primary': {
         'bg': COLORS['primary'],
         'fg': COLORS['text_light'],
         'font': FONTS['button'],
-        'relief': 'flat',
-        'bd': 0,
+        'relief': 'raised',
+        'bd': 2,
         'activebackground': COLORS['primary_dark'],
         'activeforeground': COLORS['text_light'],
         'highlightbackground': COLORS['primary'],
@@ -88,75 +88,75 @@ BUTTON_STYLES = {
         'cursor': 'hand2'
     },
     'secondary': {
-        'bg': COLORS['bg_tertiary'],
+        'bg': COLORS['bg_secondary'],
         'fg': COLORS['text_primary'],
         'font': FONTS['button'],
-        'relief': 'flat',
-        'bd': 1,
-        'highlightbackground': COLORS['bg_tertiary'],
+        'relief': 'raised',
+        'bd': 2,
+        'highlightbackground': COLORS['bg_secondary'],
         'highlightcolor': COLORS['border_accent'],
         'activebackground': COLORS['bg_hover'],
         'activeforeground': COLORS['text_primary'],
         'cursor': 'hand2'
     },
     'success': {
-        'bg': COLORS['accent_green'],
+        'bg': COLORS['text_success'],
         'fg': COLORS['text_light'],
         'font': FONTS['button'],
-        'relief': 'flat',
-        'bd': 0,
-        'activebackground': '#388E3C',
+        'relief': 'raised',
+        'bd': 2,
+        'activebackground': '#218838',
         'activeforeground': COLORS['text_light'],
-        'highlightbackground': COLORS['accent_green'],
-        'highlightcolor': COLORS['accent_green'],
+        'highlightbackground': COLORS['text_success'],
+        'highlightcolor': COLORS['text_success'],
         'cursor': 'hand2'
     },
     'warning': {
-        'bg': COLORS['accent_orange'],
-        'fg': COLORS['text_light'],
+        'bg': COLORS['text_warning'],
+        'fg': COLORS['text_primary'],
         'font': FONTS['button'],
-        'relief': 'flat',
-        'bd': 0,
-        'activebackground': '#F57C00',
-        'activeforeground': COLORS['text_light'],
-        'highlightbackground': COLORS['accent_orange'],
-        'highlightcolor': COLORS['accent_orange'],
+        'relief': 'raised',
+        'bd': 2,
+        'activebackground': '#E0A800',
+        'activeforeground': COLORS['text_primary'],
+        'highlightbackground': COLORS['text_warning'],
+        'highlightcolor': COLORS['text_warning'],
         'cursor': 'hand2'
     },
     'error': {
         'bg': COLORS['text_error'],
         'fg': COLORS['text_light'],
         'font': FONTS['button'],
-        'relief': 'flat',
-        'bd': 0,
-        'activebackground': '#D32F2F',
+        'relief': 'raised',
+        'bd': 2,
+        'activebackground': '#C82333',
         'activeforeground': COLORS['text_light'],
         'highlightbackground': COLORS['text_error'],
         'highlightcolor': COLORS['text_error'],
         'cursor': 'hand2'
     },
     'info': {
-        'bg': COLORS['accent_blue'],
+        'bg': COLORS['text_info'],
         'fg': COLORS['text_light'],
         'font': FONTS['button'],
-        'relief': 'flat',
-        'bd': 0,
-        'activebackground': '#1976D2',
+        'relief': 'raised',
+        'bd': 2,
+        'activebackground': '#138496',
         'activeforeground': COLORS['text_light'],
-        'highlightbackground': COLORS['accent_blue'],
-        'highlightcolor': COLORS['accent_blue'],
+        'highlightbackground': COLORS['text_info'],
+        'highlightcolor': COLORS['text_info'],
         'cursor': 'hand2'
     }
 }
 
-# Input Field Styles - Modern Dark Theme
+# Input Field Styles - Clean Light Theme
 INPUT_STYLES = {
     'default': {
         'font': FONTS['body'],
-        'bg': COLORS['bg_tertiary'],
+        'bg': COLORS['bg_primary'],
         'fg': COLORS['text_primary'],
-        'relief': 'flat',
-        'bd': 1,
+        'relief': 'sunken',
+        'bd': 2,
         'highlightthickness': 2,
         'highlightcolor': COLORS['primary'],
         'highlightbackground': COLORS['border_light'],
@@ -205,7 +205,7 @@ LABEL_STYLES = {
     }
 }
 
-# Frame Styles - Modern Dark Theme
+# Frame Styles - Clean Light Theme
 FRAME_STYLES = {
     'main': {
         'bg': COLORS['bg_primary'],
@@ -213,21 +213,21 @@ FRAME_STYLES = {
         'bd': 0
     },
     'card': {
-        'bg': COLORS['bg_tertiary'],
-        'relief': 'flat',
-        'bd': 1,
+        'bg': COLORS['bg_secondary'],
+        'relief': 'raised',
+        'bd': 2,
         'highlightbackground': COLORS['border_accent']
     },
     'status': {
-        'bg': COLORS['bg_secondary'],
-        'relief': 'flat',
-        'bd': 1,
+        'bg': COLORS['bg_tertiary'],
+        'relief': 'sunken',
+        'bd': 2,
         'highlightbackground': COLORS['border_light']
     },
     'elevated': {
-        'bg': COLORS['bg_tertiary'],
+        'bg': COLORS['bg_secondary'],
         'relief': 'raised',
-        'bd': 2,
+        'bd': 3,
         'highlightbackground': COLORS['border_accent']
     }
 }
@@ -243,17 +243,17 @@ PROGRESS_STYLES = {
     }
 }
 
-# Treeview (Table) Styles - Modern Dark Theme
+# Treeview (Table) Styles - Clean Light Theme
 TREEVIEW_STYLES = {
     'default': {
         'font': FONTS['body'],
-        'bg': COLORS['bg_tertiary'],
+        'bg': COLORS['bg_primary'],
         'fg': COLORS['text_primary'],
-        'relief': 'flat',
-        'bd': 1,
+        'relief': 'sunken',
+        'bd': 2,
         'selectbackground': COLORS['primary'],
         'selectforeground': COLORS['text_light'],
-        'fieldbackground': COLORS['bg_tertiary'],
+        'fieldbackground': COLORS['bg_primary'],
         'highlightcolor': COLORS['primary'],
         'highlightbackground': COLORS['border_accent']
     },
@@ -261,8 +261,8 @@ TREEVIEW_STYLES = {
         'font': FONTS['heading'],
         'bg': COLORS['bg_secondary'],
         'fg': COLORS['text_primary'],
-        'relief': 'flat',
-        'bd': 1
+        'relief': 'raised',
+        'bd': 2
     }
 }
 

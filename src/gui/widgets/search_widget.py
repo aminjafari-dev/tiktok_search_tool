@@ -134,7 +134,7 @@ class SearchWidget(tk.Frame):
         self.clear_button.pack(side='left')
         
         # Login status frame
-        self.login_frame = tk.Frame(self, bg=COLORS['bg_tertiary'], relief='flat', bd=1, highlightbackground=COLORS['border_accent'], highlightthickness=1)
+        self.login_frame = tk.Frame(self, bg=COLORS['bg_secondary'], relief='raised', bd=2, highlightbackground=COLORS['border_accent'], highlightthickness=1)
         self.login_frame.pack(fill='x', padx=LAYOUT['padding'], pady=LAYOUT['spacing'])
         
         self.login_label = tk.Label(
@@ -168,7 +168,7 @@ class SearchWidget(tk.Frame):
         apply_button_style(self.login_button, 'warning')
         
         # Apply frame styles
-        self.login_frame.configure(bg=COLORS['bg_tertiary'])
+        self.login_frame.configure(bg=COLORS['bg_secondary'])
     
     def _on_search_clicked(self, event=None):
         """Handle search button click or Enter key press"""

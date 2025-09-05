@@ -49,7 +49,7 @@ class ResultsWidget(tk.Frame):
         self.configure(bg=COLORS['bg_primary'])
         
         # Header frame
-        self.header_frame = tk.Frame(self, bg=COLORS['bg_tertiary'], relief='flat', bd=1, highlightbackground=COLORS['border_accent'], highlightthickness=1)
+        self.header_frame = tk.Frame(self, bg=COLORS['bg_secondary'], relief='raised', bd=2, highlightbackground=COLORS['border_accent'], highlightthickness=1)
         self.header_frame.pack(fill='x', padx=LAYOUT['padding'], pady=LAYOUT['spacing'])
         
         # Results title
@@ -161,7 +161,7 @@ class ResultsWidget(tk.Frame):
         apply_button_style(self.export_button, 'success')
         
         # Apply frame styles
-        self.header_frame.configure(bg=COLORS['bg_tertiary'])
+        self.header_frame.configure(bg=COLORS['bg_secondary'])
     
     def _on_export_clicked(self):
         """Handle export button click"""

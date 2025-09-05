@@ -46,7 +46,7 @@ class ProgressWidget(tk.Frame):
         self.configure(bg=COLORS['bg_primary'])
         
         # Status frame
-        self.status_frame = tk.Frame(self, bg=COLORS['bg_tertiary'], relief='flat', bd=1, highlightbackground=COLORS['border_accent'], highlightthickness=1)
+        self.status_frame = tk.Frame(self, bg=COLORS['bg_tertiary'], relief='sunken', bd=2, highlightbackground=COLORS['border_accent'], highlightthickness=1)
         self.status_frame.pack(fill='x', padx=LAYOUT['padding'], pady=LAYOUT['spacing'])
         
         # Status label
@@ -102,12 +102,12 @@ class ProgressWidget(tk.Frame):
             self.steps_frame,
             height=4,
             font=FONTS['small'],
-            bg=COLORS['bg_tertiary'],
+            bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
             selectbackground=COLORS['primary'],
             selectforeground=COLORS['text_light'],
-            relief='flat',
-            bd=1,
+            relief='sunken',
+            bd=2,
             highlightbackground=COLORS['border_accent'],
             highlightthickness=1
         )
