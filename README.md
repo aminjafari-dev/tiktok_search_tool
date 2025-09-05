@@ -5,6 +5,7 @@ A modular Python tool to search TikTok videos and save results to Excel files. T
 ## Features
 
 - 🔍 **Search TikTok videos** by keywords or phrases
+- 📺 **Search by channel** - extract all videos from a TikTok channel
 - 🔐 **Login management** for enhanced search results (bypasses 6-video limit)
 - 📊 **Export to Excel** with organized data (URL, username, video ID, title)
 - 🔄 **Duplicate prevention** - automatically checks for existing links and preserves data
@@ -14,20 +15,38 @@ A modular Python tool to search TikTok videos and save results to Excel files. T
 - 📝 **Configurable settings** for different use cases
 - 🎯 **Clean separation of concerns** across multiple modules
 - 💾 **Session persistence** to remember login state
+- 🖥️ **GUI and CLI modes** for different user preferences
 
 ## Project Structure
 
 ```
 tiktok_search_tool/
 ├── main.py                 # Main entry point with login integration
-├── tiktok_searcher.py      # Core search logic
-├── login_manager.py        # Login management and session handling
-├── browser_manager.py      # Browser automation
-├── excel_manager.py        # Excel file operations
-├── utils.py               # Utility functions
-├── config.py              # Configuration settings
-├── test_integrated_login.py # Test script for login functionality
-├── test_timestamp_feature.py # Test script for timestamp functionality
+├── src/                    # Source code directory
+│   ├── core/              # Core functionality
+│   │   ├── tiktok_searcher.py # Core search logic
+│   │   └── config.py      # Configuration settings
+│   ├── managers/          # Manager classes
+│   │   ├── login_manager.py # Login management and session handling
+│   │   ├── browser_manager.py # Browser automation
+│   │   └── excel_manager.py # Excel file operations
+│   ├── channel_search/    # Channel search functionality
+│   │   ├── channel_parser.py # Channel URL/ID parser
+│   │   ├── channel_extractor.py # Channel video extractor
+│   │   └── channel_searcher.py # Channel search orchestrator
+│   ├── gui/               # GUI components
+│   │   ├── main_window.py # Main GUI window
+│   │   ├── controller.py  # GUI controller
+│   │   ├── styles.py      # GUI styling
+│   │   └── widgets/       # GUI widgets
+│   │       ├── search_widget.py # Subject search widget
+│   │       ├── channel_search_widget.py # Channel search widget
+│   │       ├── progress_widget.py # Progress display widget
+│   │       └── results_widget.py # Results display widget
+│   └── utils/             # Utility functions
+│       └── utils.py       # Helper functions
+├── test_channel_search.py # Test script for channel search functionality
+├── test_channel_cli.py    # CLI test for channel search
 ├── requirements.txt       # Python dependencies
 ├── excel_files/           # Directory containing all Excel output files
 │   ├── tiktok_search_*.xlsx # Generated Excel files with search results
@@ -82,6 +101,26 @@ python main.py "dance videos"
 python main.py "cooking tutorial"
 ```
 
+### Search Modes
+
+The tool supports two search modes:
+
+#### 1. Subject Search (Default)
+Search for videos by keywords or phrases:
+```bash
+python main.py --cli "funny cats"
+python main.py --cli "dance videos"
+python main.py --cli "cooking tutorial"
+```
+
+#### 2. Channel Search
+Extract all videos from a specific TikTok channel:
+```bash
+python main.py --cli --channel "@username"
+python main.py --cli --channel "https://www.tiktok.com/@username"
+python main.py --cli --channel "username"
+```
+
 ### Login Management
 
 The tool now includes integrated login management:
@@ -112,7 +151,7 @@ with TikTokSearcher() as searcher:
     searcher.save_to_excel(videos, "my_results.xlsx")
 
 # Enhanced search with login management
-from login_manager import TikTokSearchWithLogin
+from src.managers.login_manager import TikTokSearchWithLogin
 
 with TikTokSearchWithLogin() as searcher:
     # Search with automatic login management
@@ -120,6 +159,19 @@ with TikTokSearchWithLogin() as searcher:
     
     # Force login prompt even if already logged in
     videos = searcher.search_with_login("dance videos", max_results=20, force_login=True)
+
+# Channel search
+from src.channel_search.channel_searcher import ChannelSearcher
+
+with ChannelSearcher() as channel_searcher:
+    # Search channel and save to Excel
+    success = channel_searcher.search_channel_and_save("@username", max_videos=50)
+    
+    # Or search channel only (without saving)
+    videos = channel_searcher.search_channel("@username", max_videos=20)
+    
+    # Save separately
+    channel_searcher.save_to_excel(videos, "channel_results.xlsx")
 ```
 
 ## Configuration
@@ -152,6 +204,33 @@ EXCEL_CONFIG = {
 }
 ```
 
+## GUI Mode
+
+The tool includes a user-friendly GUI interface:
+
+### Features
+- **Dual search modes**: Toggle between subject search and channel search
+- **Real-time validation**: Channel input is validated as you type
+- **Progress tracking**: Visual progress indicators for long-running operations
+- **Results display**: Table view of found videos with export options
+- **Login management**: Integrated login prompts with status indicators
+
+### Usage
+```bash
+# Start GUI mode (default)
+python main.py
+
+# Or explicitly start GUI mode
+python main.py --gui
+```
+
+### GUI Components
+- **Search Type Toggle**: Switch between subject and channel search
+- **Input Validation**: Real-time validation of channel URLs and usernames
+- **Progress Widget**: Shows search progress and status updates
+- **Results Table**: Displays found videos with export functionality
+- **Login Status**: Shows current login state and prompts for authentication
+
 ## Output Format
 
 The tool generates Excel files in the `excel_files/` directory with the following columns:
@@ -162,8 +241,10 @@ The tool generates Excel files in the `excel_files/` directory with the followin
 | Username | TikTok username (@username) |
 | Video ID | Unique video identifier |
 | Title | Video title/description |
-| Search Query | Original search term used |
+| Search Query | Original search term used (or channel name for channel search) |
 | Added Date | Timestamp when the video was discovered and added |
+| Channel Info | Channel information (for channel search) |
+| Search Type | Type of search performed (subject/channel) |
 
 **File Location**: All Excel files are automatically saved to the `excel_files/` directory to keep the project root organized.
 

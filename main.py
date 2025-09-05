@@ -115,6 +115,7 @@ Examples:
   python main.py --gui              # Start GUI mode explicitly
   python main.py --cli              # Start CLI mode
   python main.py --cli "funny cats" # CLI mode with search query
+  python main.py --cli --channel "@username" # CLI mode with channel search
   python main.py --help             # Show this help message
         """
     )
@@ -145,6 +146,12 @@ Examples:
     )
     
     parser.add_argument(
+        '--channel',
+        action='store_true',
+        help='Search by channel instead of subject'
+    )
+    
+    parser.add_argument(
         '--version',
         action='version',
         version='TikTok Search Tool 1.0.0'
@@ -165,26 +172,41 @@ def main():
             query = args.query
             max_results = args.max_results
             
-            if not validate_query(query):
-                print("❌ Invalid search term provided")
-                return
-            
-            print(f"🔍 Searching for: {query}")
-            print("🔐 Opening TikTok login page and waiting for your confirmation...")
-            
-            with TikTokSearchWithLogin() as enhanced_searcher:
-                videos = enhanced_searcher.search_with_login(query, max_results)
+            if args.channel:
+                # Channel search mode
+                print(f"📺 Channel search for: {query}")
+                print("🔐 Opening TikTok login page and waiting for your confirmation...")
                 
-                if videos:
-                    with TikTokSearcher() as searcher:
-                        success = searcher.save_videos_to_excel(videos)
-                        if success:
-                            print(f"\n🎉 Search completed successfully! Found {len(videos)} videos")
-                            print("📁 Results saved to Excel file")
-                        else:
-                            print("\n❌ Search completed but failed to save results.")
-                else:
-                    print("\n❌ No videos found.")
+                from src.channel_search.channel_searcher import ChannelSearcher
+                
+                with ChannelSearcher() as channel_searcher:
+                    success = channel_searcher.search_channel_and_save(query, max_results)
+                    if success:
+                        print("✅ Channel search completed successfully!")
+                    else:
+                        print("❌ Channel search failed.")
+            else:
+                # Subject search mode
+                if not validate_query(query):
+                    print("❌ Invalid search term provided")
+                    return
+                
+                print(f"🔍 Searching for: {query}")
+                print("🔐 Opening TikTok login page and waiting for your confirmation...")
+                
+                with TikTokSearchWithLogin() as enhanced_searcher:
+                    videos = enhanced_searcher.search_with_login(query, max_results)
+                    
+                    if videos:
+                        with TikTokSearcher() as searcher:
+                            success = searcher.save_videos_to_excel(videos)
+                            if success:
+                                print(f"\n🎉 Search completed successfully! Found {len(videos)} videos")
+                                print("📁 Results saved to Excel file")
+                            else:
+                                print("\n❌ Search completed but failed to save results.")
+                    else:
+                        print("\n❌ No videos found.")
         else:
             # Interactive CLI mode
             run_cli_mode()

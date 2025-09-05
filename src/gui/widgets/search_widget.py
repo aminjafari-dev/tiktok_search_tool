@@ -10,6 +10,7 @@ from src.gui.styles import (
     LABEL_STYLES, INPUT_STYLES, apply_button_style, 
     apply_label_style, apply_input_style
 )
+from src.channel_search.channel_parser import ChannelParser
 
 
 class SearchWidget(tk.Frame):
@@ -24,27 +25,38 @@ class SearchWidget(tk.Frame):
     - Login status indicator
     """
     
-    def __init__(self, parent, on_search_callback=None, on_clear_callback=None):
+    def __init__(self, parent, on_search_callback=None, on_clear_callback=None, on_channel_search_callback=None):
         """
         Initialize the search widget
         
         Args:
             parent: Parent tkinter widget
-            on_search_callback: Function to call when search is triggered
+            on_search_callback: Function to call when subject search is triggered
             on_clear_callback: Function to call when clear is triggered
+            on_channel_search_callback: Function to call when channel search is triggered
         """
         super().__init__(parent)
         self.parent = parent
         self.on_search_callback = on_search_callback
         self.on_clear_callback = on_clear_callback
+        self.on_channel_search_callback = on_channel_search_callback
         
         # Widget state
         self.search_var = tk.StringVar()
         self.max_results_var = tk.StringVar(value="20")
         self.login_status_var = tk.StringVar(value="Not logged in")
+        self.search_type_var = tk.StringVar(value="subject")  # "subject" or "channel"
+        self.channel_status_var = tk.StringVar(value="Enter channel URL or username")
+        
+        # Initialize parser
+        self.parser = ChannelParser()
+        
+        # Bind input validation
+        self.search_var.trace('w', self._on_input_change)
         
         self._setup_ui()
         self._apply_styles()
+        self._on_search_type_change()  # Initialize the UI state
     
     def _setup_ui(self):
         """Setup the user interface components"""
@@ -70,11 +82,48 @@ class SearchWidget(tk.Frame):
         )
         self.subtitle_label.pack(pady=(LAYOUT['spacing'], 0))
         
+        # Search type selection frame
+        self.search_type_frame = tk.Frame(self, bg=COLORS['bg_primary'])
+        self.search_type_frame.pack(fill='x', pady=(LAYOUT['padding'], LAYOUT['spacing']))
+        
+        # Search type label
+        self.search_type_label = tk.Label(
+            self.search_type_frame,
+            text="Search Type:",
+            **LABEL_STYLES['heading']
+        )
+        self.search_type_label.pack(side='left', padx=(0, LAYOUT['spacing']))
+        
+        # Search type radio buttons
+        self.subject_radio = tk.Radiobutton(
+            self.search_type_frame,
+            text="🔍 Search by Subject",
+            variable=self.search_type_var,
+            value="subject",
+            command=self._on_search_type_change,
+            bg=COLORS['bg_primary'],
+            fg=COLORS['text_primary'],
+            selectcolor=COLORS['accent_blue']
+        )
+        self.subject_radio.pack(side='left', padx=(0, LAYOUT['spacing']))
+        
+        self.channel_radio = tk.Radiobutton(
+            self.search_type_frame,
+            text="📺 Search by Channel",
+            variable=self.search_type_var,
+            value="channel",
+            command=self._on_search_type_change,
+            bg=COLORS['bg_primary'],
+            fg=COLORS['text_primary'],
+            selectcolor=COLORS['accent_blue']
+        )
+        self.channel_radio.pack(side='left')
+        
         # Search input frame
         self.search_frame = tk.Frame(self, bg=COLORS['bg_primary'])
         self.search_frame.pack(fill='x', padx=LAYOUT['padding'], pady=LAYOUT['spacing'])
         
-        # Search query input
+        # Dynamic input label
         self.query_label = tk.Label(
             self.search_frame,
             text="Search Query:",
@@ -89,6 +138,14 @@ class SearchWidget(tk.Frame):
         )
         self.query_entry.pack(fill='x', pady=(LAYOUT['spacing'], LAYOUT['padding']))
         self.query_entry.bind('<Return>', self._on_search_clicked)
+        
+        # Channel validation status (initially hidden)
+        self.channel_status_label = tk.Label(
+            self.search_frame,
+            textvariable=self.channel_status_var,
+            **LABEL_STYLES['secondary']
+        )
+        # Will be shown/hidden based on search type
         
         # Controls frame
         self.controls_frame = tk.Frame(self.search_frame, bg=COLORS['bg_primary'])
@@ -115,7 +172,7 @@ class SearchWidget(tk.Frame):
         self.buttons_frame = tk.Frame(self.controls_frame, bg=COLORS['bg_primary'])
         self.buttons_frame.pack(side='right')
         
-        # Search button
+        # Dynamic search button
         self.search_button = tk.Button(
             self.buttons_frame,
             text="🔍 Search",
@@ -170,6 +227,55 @@ class SearchWidget(tk.Frame):
         # Apply frame styles
         self.login_frame.configure(bg=COLORS['bg_secondary'])
     
+    def _on_search_type_change(self):
+        """Handle search type change"""
+        search_type = self.search_type_var.get()
+        
+        if search_type == "channel":
+            # Update UI for channel search
+            self.query_label.configure(text="Channel URL or Username:")
+            self.search_button.configure(text="📺 Search Channel")
+            self.channel_status_label.pack(anchor='w', pady=(0, LAYOUT['spacing']))
+            self._on_input_change()  # Validate current input
+        else:
+            # Update UI for subject search
+            self.query_label.configure(text="Search Query:")
+            self.search_button.configure(text="🔍 Search")
+            self.channel_status_label.pack_forget()
+            # Clear any channel validation status
+            self.channel_status_var.set("Enter channel URL or username")
+    
+    def _on_input_change(self, *args):
+        """Handle input change for real-time validation"""
+        if self.search_type_var.get() != "channel":
+            return
+            
+        input_text = self.search_var.get().strip()
+        
+        if not input_text:
+            self.channel_status_var.set("Enter channel URL or username")
+            self._update_status_color("normal")
+            return
+        
+        # Validate input
+        is_valid, formatted, error = self.parser.validate_and_format(input_text)
+        
+        if is_valid:
+            self.channel_status_var.set(formatted)
+            self._update_status_color("success")
+        else:
+            self.channel_status_var.set(f"❌ {error}")
+            self._update_status_color("error")
+    
+    def _update_status_color(self, status_type):
+        """Update status label color based on validation"""
+        if status_type == "success":
+            self.channel_status_label.configure(fg=COLORS.get('text_success', '#28a745'))
+        elif status_type == "error":
+            self.channel_status_label.configure(fg=COLORS.get('text_error', '#dc3545'))
+        else:
+            self.channel_status_label.configure(fg=COLORS['text_secondary'])
+    
     def _on_search_clicked(self, event=None):
         """Handle search button click or Enter key press"""
         query = self.search_var.get().strip()
@@ -182,13 +288,28 @@ class SearchWidget(tk.Frame):
         except ValueError:
             max_results = 20
         
-        if self.on_search_callback:
-            self.on_search_callback(query, max_results)
+        search_type = self.search_type_var.get()
+        
+        if search_type == "channel":
+            # Validate channel input
+            is_valid, formatted, error = self.parser.validate_and_format(query)
+            if not is_valid:
+                self._show_error(f"Invalid channel input: {error}")
+                return
+            
+            if self.on_channel_search_callback:
+                self.on_channel_search_callback(query, max_results)
+        else:
+            # Subject search
+            if self.on_search_callback:
+                self.on_search_callback(query, max_results)
     
     def _on_clear_clicked(self):
         """Handle clear button click"""
         self.search_var.set("")
         self.max_results_var.set("20")
+        self.channel_status_var.set("Enter channel URL or username")
+        self._update_status_color("normal")
         
         if self.on_clear_callback:
             self.on_clear_callback()

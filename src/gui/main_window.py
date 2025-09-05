@@ -42,7 +42,7 @@ class MainWindow:
     def _create_window(self):
         """Create the main application window"""
         self.root = tk.Tk()
-        self.root.title("🎵 TikTok Search Tool")
+        self.root.title("🎵 TikTok Search Tool - Subject & Channel Search")
         self.root.geometry("1000x750")
         self.root.minsize(LAYOUT['window_min_width'], LAYOUT['window_min_height'])
         
@@ -66,11 +66,12 @@ class MainWindow:
         self.main_frame = tk.Frame(self.root, bg=COLORS['bg_primary'])
         self.main_frame.pack(fill='both', expand=True, padx=LAYOUT['padding'], pady=LAYOUT['padding'])
         
-        # Search widget
+        # Search widget (unified subject and channel search)
         self.search_widget = SearchWidget(
             self.main_frame,
             on_search_callback=self._on_search_requested,
-            on_clear_callback=self._on_clear_requested
+            on_clear_callback=self._on_clear_requested,
+            on_channel_search_callback=self._on_channel_search_requested
         )
         self.search_widget.pack(fill='x', pady=(0, LAYOUT['spacing']))
         
@@ -113,6 +114,20 @@ class MainWindow:
         
         self._start_search(query, max_results)
     
+    def _on_channel_search_requested(self, channel_input, max_videos):
+        """
+        Handle channel search request from channel search widget
+        
+        Args:
+            channel_input (str): Channel URL or username
+            max_videos (int): Maximum number of videos to extract
+        """
+        if self.is_searching:
+            messagebox.showwarning("Search in Progress", "Please wait for the current search to complete")
+            return
+        
+        self._start_channel_search(channel_input, max_videos)
+    
     def _start_search(self, query, max_results):
         """
         Start the search process in a separate thread
@@ -130,6 +145,29 @@ class MainWindow:
         self.current_search_thread = threading.Thread(
             target=self._perform_search,
             args=(query, max_results),
+            daemon=True
+        )
+        # Mark this thread as GUI mode
+        self.current_search_thread._gui_mode = True
+        self.current_search_thread.start()
+    
+    def _start_channel_search(self, channel_input, max_videos):
+        """
+        Start the channel search process in a separate thread
+        
+        Args:
+            channel_input (str): Channel URL or username
+            max_videos (int): Maximum number of videos to extract
+        """
+        self.is_searching = True
+        self.search_widget.set_search_enabled(False)
+        self.progress_widget.show_loading(f"Searching channel: {channel_input}")
+        self.results_widget.clear_results()
+        
+        # Start search in separate thread
+        self.current_search_thread = threading.Thread(
+            target=self._perform_channel_search,
+            args=(channel_input, max_videos),
             daemon=True
         )
         # Mark this thread as GUI mode
@@ -180,6 +218,59 @@ class MainWindow:
             error_msg = f"Search failed: {str(e)}"
             self.root.after(0, lambda: self.progress_widget.show_error(error_msg))
             self.root.after(0, lambda: messagebox.showerror("Search Error", error_msg))
+        
+        finally:
+            # Reset search state
+            self.root.after(0, self._reset_search_state)
+    
+    def _perform_channel_search(self, channel_input, max_videos):
+        """
+        Perform the actual channel search operation
+        
+        Args:
+            channel_input (str): Channel URL or username
+            max_videos (int): Maximum number of videos to extract
+        """
+        try:
+            # Import channel search functionality
+            from src.channel_search.channel_searcher import ChannelSearcher
+            
+            # Update progress
+            self.root.after(0, lambda: self.progress_widget.add_search_step("Initializing channel search..."))
+            self.root.after(0, lambda: self.progress_widget.update_search_progress(1, 6, "Setting up browser..."))
+            
+            # Perform channel search
+            with ChannelSearcher() as channel_searcher:
+                self.root.after(0, lambda: self.progress_widget.add_search_step("Opening TikTok...", completed=True))
+                self.root.after(0, lambda: self.progress_widget.update_search_progress(2, 6, "Waiting for login..."))
+                self.root.after(0, lambda: self.progress_widget.set_detail("Please complete login in the browser window that opened"))
+                
+                # Extract channel info first
+                self.root.after(0, lambda: self.progress_widget.add_search_step("Getting channel info...", completed=True))
+                self.root.after(0, lambda: self.progress_widget.update_search_progress(3, 6, "Extracting channel videos..."))
+                
+                videos = channel_searcher.search_channel(channel_input, max_videos)
+                
+                self.root.after(0, lambda: self.progress_widget.add_search_step("Processing channel videos...", completed=True))
+                self.root.after(0, lambda: self.progress_widget.update_search_progress(4, 6, "Processing results..."))
+                
+                if videos:
+                    self.root.after(0, lambda: self.progress_widget.add_search_step("Processing results...", completed=True))
+                    self.root.after(0, lambda: self.progress_widget.update_search_progress(5, 6, "Displaying results..."))
+                    
+                    # Display results
+                    self.root.after(0, lambda: self.results_widget.show_results(videos))
+                    self.root.after(0, lambda: self.progress_widget.show_success(f"Found {len(videos)} videos from channel"))
+                else:
+                    self.root.after(0, lambda: self.progress_widget.show_warning("No videos found in channel"))
+            
+            self.root.after(0, lambda: self.progress_widget.add_search_step("Channel search completed", completed=True))
+            self.root.after(0, lambda: self.progress_widget.update_search_progress(6, 6, "Done"))
+            
+        except Exception as e:
+            error_msg = f"Channel search failed: {str(e)}"
+            self.root.after(0, lambda: self.progress_widget.show_error(error_msg))
+            self.root.after(0, lambda: messagebox.showerror("Channel Search Error", error_msg))
         
         finally:
             # Reset search state
