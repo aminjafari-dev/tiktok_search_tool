@@ -3,9 +3,11 @@
 Simple TikTok Search Tool - Main Entry Point
 A modular tool to search TikTok videos and save links to Excel
 Now with integrated login management for better search results
+Supports both CLI and GUI modes
 """
 
 import sys
+import argparse
 from src.core.tiktok_searcher import TikTokSearcher
 from src.managers.login_manager import TikTokSearchWithLogin
 from src.utils.utils import validate_query
@@ -53,8 +55,8 @@ def display_welcome():
     print("=" * 50)
 
 
-def main():
-    """Main function to run the TikTok search tool with automatic login management"""
+def run_cli_mode():
+    """Run the application in CLI mode"""
     display_welcome()
     
     # Get user input
@@ -80,6 +82,115 @@ def main():
                     print("\n❌ Search completed but failed to save results.")
         else:
             print("\n❌ No videos found.")
+
+
+def run_gui_mode():
+    """Run the application in GUI mode"""
+    try:
+        from src.gui.controller import GUIController
+        
+        print("🚀 Starting TikTok Search Tool GUI...")
+        controller = GUIController()
+        controller.run()
+        
+    except ImportError as e:
+        print(f"❌ GUI mode not available: {e}")
+        print("💡 Make sure tkinter is installed: pip install tk")
+        print("🔄 Falling back to CLI mode...")
+        run_cli_mode()
+    except Exception as e:
+        print(f"❌ GUI startup error: {e}")
+        print("🔄 Falling back to CLI mode...")
+        run_cli_mode()
+
+
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+        description="TikTok Search Tool - Search TikTok videos and export to Excel",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python main.py                    # Start GUI mode
+  python main.py --gui              # Start GUI mode explicitly
+  python main.py --cli              # Start CLI mode
+  python main.py --cli "funny cats" # CLI mode with search query
+  python main.py --help             # Show this help message
+        """
+    )
+    
+    parser.add_argument(
+        'query',
+        nargs='?',
+        help='Search query (for CLI mode)'
+    )
+    
+    parser.add_argument(
+        '--gui',
+        action='store_true',
+        help='Start in GUI mode (default)'
+    )
+    
+    parser.add_argument(
+        '--cli',
+        action='store_true',
+        help='Start in CLI mode'
+    )
+    
+    parser.add_argument(
+        '--max-results',
+        type=int,
+        default=20,
+        help='Maximum number of results (default: 20)'
+    )
+    
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='TikTok Search Tool 1.0.0'
+    )
+    
+    return parser.parse_args()
+
+
+def main():
+    """Main function to run the TikTok search tool"""
+    args = parse_arguments()
+    
+    # Determine mode
+    if args.cli:
+        # CLI mode
+        if args.query:
+            # Direct search from command line
+            query = args.query
+            max_results = args.max_results
+            
+            if not validate_query(query):
+                print("❌ Invalid search term provided")
+                return
+            
+            print(f"🔍 Searching for: {query}")
+            print("🔐 Opening TikTok login page and waiting for your confirmation...")
+            
+            with TikTokSearchWithLogin() as enhanced_searcher:
+                videos = enhanced_searcher.search_with_login(query, max_results)
+                
+                if videos:
+                    with TikTokSearcher() as searcher:
+                        success = searcher.save_videos_to_excel(videos)
+                        if success:
+                            print(f"\n🎉 Search completed successfully! Found {len(videos)} videos")
+                            print("📁 Results saved to Excel file")
+                        else:
+                            print("\n❌ Search completed but failed to save results.")
+                else:
+                    print("\n❌ No videos found.")
+        else:
+            # Interactive CLI mode
+            run_cli_mode()
+    else:
+        # GUI mode (default)
+        run_gui_mode()
 
 
 if __name__ == "__main__":

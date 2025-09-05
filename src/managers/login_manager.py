@@ -237,21 +237,70 @@ class TikTokLoginManager:
             time.sleep(3)
             print("✅ TikTok login page loaded")
             
-            # Wait indefinitely for user to complete login
+            # Check if we're in GUI mode
+            if self._is_gui_mode():
+                return self._perform_gui_login()
+            else:
+                return self._perform_cli_login()
+            
+        except Exception as e:
+            print(f"❌ Error during login process: {e}")
+            return False
+    
+    def _is_gui_mode(self):
+        """
+        Check if we're running in GUI mode
+        
+        Returns:
+            bool: True if in GUI mode, False otherwise
+        """
+        try:
+            import tkinter as tk
+            # Try to get the root window
+            root = tk._default_root
+            if root is not None:
+                return True
+            
+            # Also check if we're in a GUI thread
+            import threading
+            current_thread = threading.current_thread()
+            if hasattr(current_thread, '_gui_mode'):
+                return current_thread._gui_mode
+            
+            return False
+        except:
+            return False
+    
+    def _perform_gui_login(self):
+        """
+        Perform login in GUI mode using a simple approach
+        
+        Returns:
+            bool: True if login successful, False otherwise
+        """
+        try:
             print("\n" + "="*60)
             print("⏳ WAITING FOR YOU TO COMPLETE LOGIN/REGISTRATION")
             print("="*60)
             print("📝 Please complete your login or registration in the browser")
             print("💡 The tool will wait as long as you need")
-            print("✅ When you're fully logged in, come back here and type 'Y'")
-            print("❌ If you want to cancel, type 'N'")
+            print("✅ When you're fully logged in, the search will continue automatically")
+            print("❌ If you want to cancel, close the browser window")
             print("="*60)
             
-            while True:
-                confirmation = input("\n🤔 Did you log in to your account? (Y/N): ").strip().upper()
+            # For GUI mode, we'll use a simpler approach
+            # Wait for user to complete login by checking login status periodically
+            max_wait_time = 300  # 5 minutes max wait
+            check_interval = 5   # Check every 5 seconds
+            elapsed_time = 0
+            
+            while elapsed_time < max_wait_time:
+                time.sleep(check_interval)
+                elapsed_time += check_interval
                 
-                if confirmation == 'Y':
-                    print("✅ Confirmed! Proceeding with search...")
+                # Check if user is logged in
+                if self._check_login_status_quick():
+                    print("✅ Login detected! Proceeding with search...")
                     
                     # Save session data
                     self.session_data['cookies'] = self.driver.get_cookies()
@@ -259,17 +308,100 @@ class TikTokLoginManager:
                     self._save_session()
                     
                     return True
-                        
-                elif confirmation == 'N':
-                    print("⏳ No problem! Take your time to complete the login process.")
-                    print("💡 When you're ready, come back and type 'Y'")
-                    continue
-                else:
-                    print("❌ Please enter 'Y' for yes or 'N' for no")
+                
+                # Show progress
+                remaining = max_wait_time - elapsed_time
+                print(f"⏳ Still waiting for login... ({remaining}s remaining)")
+                
+                # Update GUI progress if available
+                try:
+                    import tkinter as tk
+                    root = tk._default_root
+                    if root:
+                        # Update progress in GUI
+                        progress_text = f"Waiting for login... ({remaining}s remaining)"
+                        # This will be handled by the main window's progress updates
+                except:
+                    pass
+            
+            print("⚠️  Login timeout - continuing with limited results")
+            return False
             
         except Exception as e:
-            print(f"❌ Error during login process: {e}")
+            print(f"❌ Error in GUI login: {e}")
             return False
+    
+    def _check_login_status_quick(self):
+        """
+        Quick check if user is logged in without full page load
+        
+        Returns:
+            bool: True if logged in, False otherwise
+        """
+        try:
+            # Check current URL to see if we're on a logged-in page
+            current_url = self.driver.current_url
+            
+            # If we're still on login page, user hasn't logged in yet
+            if 'login' in current_url.lower():
+                return False
+            
+            # Try to find logged-in indicators
+            try:
+                # Look for profile or user elements
+                profile_elements = self.driver.find_elements("xpath", "//a[contains(@href, '/@')]")
+                if profile_elements:
+                    return True
+                
+                # Look for user menu or avatar
+                user_elements = self.driver.find_elements("xpath", "//div[contains(@class, 'avatar') or contains(@class, 'profile')]")
+                if user_elements:
+                    return True
+                    
+            except:
+                pass
+            
+            return False
+            
+        except Exception as e:
+            print(f"⚠️  Error checking login status: {e}")
+            return False
+    
+    def _perform_cli_login(self):
+        """
+        Perform login in CLI mode using input()
+        
+        Returns:
+            bool: True if login successful, False otherwise
+        """
+        print("\n" + "="*60)
+        print("⏳ WAITING FOR YOU TO COMPLETE LOGIN/REGISTRATION")
+        print("="*60)
+        print("📝 Please complete your login or registration in the browser")
+        print("💡 The tool will wait as long as you need")
+        print("✅ When you're fully logged in, come back here and type 'Y'")
+        print("❌ If you want to cancel, type 'N'")
+        print("="*60)
+        
+        while True:
+            confirmation = input("\n🤔 Did you log in to your account? (Y/N): ").strip().upper()
+            
+            if confirmation == 'Y':
+                print("✅ Confirmed! Proceeding with search...")
+                
+                # Save session data
+                self.session_data['cookies'] = self.driver.get_cookies()
+                self.session_data['login_time'] = time.time()
+                self._save_session()
+                
+                return True
+                    
+            elif confirmation == 'N':
+                print("⏳ No problem! Take your time to complete the login process.")
+                print("💡 When you're ready, come back and type 'Y'")
+                continue
+            else:
+                print("❌ Please enter 'Y' for yes or 'N' for no")
     
     def ensure_login(self):
         """
