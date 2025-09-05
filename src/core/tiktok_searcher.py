@@ -4,16 +4,16 @@ Orchestrates the search process using browser, utils, and Excel modules
 """
 
 import datetime
-from browser_manager import BrowserManager
-from excel_manager import ExcelManager
-from utils import (
+from src.managers.browser_manager import BrowserManager
+from src.managers.excel_manager import ExcelManager
+from src.utils.utils import (
     find_tiktok_links, 
     extract_video_info, 
     build_search_url, 
     generate_filename,
     format_progress
 )
-from config import SEARCH_CONFIG, MESSAGES
+from src.core.config import SEARCH_CONFIG, MESSAGES
 
 
 class TikTokSearcher:

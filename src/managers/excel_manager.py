@@ -5,7 +5,7 @@ Handles Excel file creation, formatting, and data saving
 
 import os
 import openpyxl
-from config import EXCEL_CONFIG, MESSAGES
+from src.core.config import EXCEL_CONFIG, MESSAGES
 
 
 class ExcelManager:

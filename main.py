@@ -6,10 +6,10 @@ Now with integrated login management for better search results
 """
 
 import sys
-from tiktok_searcher import TikTokSearcher
-from login_manager import TikTokSearchWithLogin
-from utils import validate_query
-from config import MESSAGES
+from src.core.tiktok_searcher import TikTokSearcher
+from src.managers.login_manager import TikTokSearchWithLogin
+from src.utils.utils import validate_query
+from src.core.config import MESSAGES
 
 
 def get_user_input():

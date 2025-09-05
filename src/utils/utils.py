@@ -5,7 +5,7 @@ Contains helper functions for common operations
 
 import re
 from urllib.parse import quote
-from config import TIKTOK_URL_PATTERNS
+from src.core.config import TIKTOK_URL_PATTERNS
 
 
 def sanitize_filename(query):

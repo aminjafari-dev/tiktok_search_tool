@@ -15,7 +15,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from config import BROWSER_CONFIG, MESSAGES
+from src.core.config import BROWSER_CONFIG, MESSAGES
 
 
 class TikTokLoginManager:
@@ -357,8 +357,8 @@ class TikTokSearchWithLogin:
         # Use the same browser instance for search
         try:
             # Import and use the search functionality with the existing browser
-            from utils import build_search_url, find_tiktok_links, extract_video_info, format_progress
-            from config import SEARCH_CONFIG, MESSAGES
+            from src.utils.utils import build_search_url, find_tiktok_links, extract_video_info, format_progress
+            from src.core.config import SEARCH_CONFIG, MESSAGES
             
             print(MESSAGES["searching"].format(query=query))
             
