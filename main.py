@@ -19,7 +19,7 @@ def get_user_input():
     Get search query and parameters from user input
     
     Returns:
-        tuple: (query, max_results) or (None, None) if invalid
+        tuple: (query, scroll_count) or (None, None) if invalid
     """
     # Get search query from command line arguments or user input
     if len(sys.argv) > 1:
@@ -35,15 +35,15 @@ def get_user_input():
             print(f"   {example}")
         return None, None
     
-    # Get number of results
+    # Get number of scrolls
     try:
-        max_results_input = input("Maximum number of results (default 20): ").strip()
-        max_results = int(max_results_input) if max_results_input else 20
+        scroll_count_input = input("Number of scrolls to perform (default 5): ").strip()
+        scroll_count = int(scroll_count_input) if scroll_count_input else 5
     except ValueError:
-        print("⚠️  Invalid number, using default of 20")
-        max_results = 20
+        print("⚠️  Invalid number, using default of 5")
+        scroll_count = 5
     
-    return query, max_results
+    return query, scroll_count
 
 
 def display_welcome():
@@ -60,7 +60,7 @@ def run_cli_mode():
     display_welcome()
     
     # Get user input
-    query, max_results = get_user_input()
+    query, scroll_count = get_user_input()
     if not query:
         return
     
@@ -69,7 +69,7 @@ def run_cli_mode():
     
     # Use enhanced searcher with automatic login management
     with TikTokSearchWithLogin() as enhanced_searcher:
-        videos = enhanced_searcher.search_with_login(query, max_results)
+        videos = enhanced_searcher.search_with_login(query, scroll_count)
         
         if videos:
             # Save results using the original searcher
@@ -139,10 +139,10 @@ Examples:
     )
     
     parser.add_argument(
-        '--max-results',
+        '--scroll-count',
         type=int,
-        default=20,
-        help='Maximum number of results (default: 20)'
+        default=5,
+        help='Number of scrolls to perform (default: 5)'
     )
     
     parser.add_argument(
@@ -170,7 +170,7 @@ def main():
         if args.query:
             # Direct search from command line
             query = args.query
-            max_results = args.max_results
+            scroll_count = args.scroll_count
             
             if args.channel:
                 # Channel search mode
@@ -180,7 +180,7 @@ def main():
                 from src.channel_search.channel_searcher import ChannelSearcher
                 
                 with ChannelSearcher() as channel_searcher:
-                    success = channel_searcher.search_channel_and_save(query, max_results)
+                    success = channel_searcher.search_channel_and_save(query, scroll_count)
                     if success:
                         print("✅ Channel search completed successfully!")
                     else:
@@ -195,7 +195,7 @@ def main():
                 print("🔐 Opening TikTok login page and waiting for your confirmation...")
                 
                 with TikTokSearchWithLogin() as enhanced_searcher:
-                    videos = enhanced_searcher.search_with_login(query, max_results)
+                    videos = enhanced_searcher.search_with_login(query, scroll_count)
                     
                     if videos:
                         with TikTokSearcher() as searcher:

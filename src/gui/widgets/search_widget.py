@@ -43,7 +43,7 @@ class SearchWidget(tk.Frame):
         
         # Widget state
         self.search_var = tk.StringVar()
-        self.max_results_var = tk.StringVar(value="20")
+        self.scroll_count_var = tk.StringVar(value="5")
         self.login_status_var = tk.StringVar(value="Not logged in")
         self.search_type_var = tk.StringVar(value="subject")  # "subject" or "channel"
         self.channel_status_var = tk.StringVar(value="Enter channel URL or username")
@@ -151,22 +151,22 @@ class SearchWidget(tk.Frame):
         self.controls_frame = tk.Frame(self.search_frame, bg=COLORS['bg_primary'])
         self.controls_frame.pack(fill='x', pady=LAYOUT['spacing'])
         
-        # Max results selector
-        self.max_results_label = tk.Label(
+        # Scroll count selector
+        self.scroll_count_label = tk.Label(
             self.controls_frame,
-            text="Max Results:",
+            text="Scroll Count:",
             **LABEL_STYLES['body']
         )
-        self.max_results_label.pack(side='left', padx=(0, LAYOUT['spacing']))
+        self.scroll_count_label.pack(side='left', padx=(0, LAYOUT['spacing']))
         
-        self.max_results_combo = ttk.Combobox(
+        self.scroll_count_combo = ttk.Combobox(
             self.controls_frame,
-            textvariable=self.max_results_var,
-            values=["10", "20", "30", "50", "100"],
+            textvariable=self.scroll_count_var,
+            values=["3", "5", "10", "15", "20"],
             state="readonly",
             width=8
         )
-        self.max_results_combo.pack(side='left', padx=(0, LAYOUT['padding']))
+        self.scroll_count_combo.pack(side='left', padx=(0, LAYOUT['padding']))
         
         # Buttons frame
         self.buttons_frame = tk.Frame(self.controls_frame, bg=COLORS['bg_primary'])
@@ -284,9 +284,9 @@ class SearchWidget(tk.Frame):
             return
         
         try:
-            max_results = int(self.max_results_var.get())
+            scroll_count = int(self.scroll_count_var.get())
         except ValueError:
-            max_results = 20
+            scroll_count = 5
         
         search_type = self.search_type_var.get()
         
@@ -298,16 +298,16 @@ class SearchWidget(tk.Frame):
                 return
             
             if self.on_channel_search_callback:
-                self.on_channel_search_callback(query, max_results)
+                self.on_channel_search_callback(query, scroll_count)
         else:
             # Subject search
             if self.on_search_callback:
-                self.on_search_callback(query, max_results)
+                self.on_search_callback(query, scroll_count)
     
     def _on_clear_clicked(self):
         """Handle clear button click"""
         self.search_var.set("")
-        self.max_results_var.set("20")
+        self.scroll_count_var.set("5")
         self.channel_status_var.set("Enter channel URL or username")
         self._update_status_color("normal")
         
@@ -351,7 +351,7 @@ class SearchWidget(tk.Frame):
         """
         state = 'normal' if enabled else 'disabled'
         self.query_entry.configure(state=state)
-        self.max_results_combo.configure(state=state)
+        self.scroll_count_combo.configure(state=state)
         self.search_button.configure(state=state)
         self.clear_button.configure(state=state)
     
@@ -360,23 +360,23 @@ class SearchWidget(tk.Frame):
         Get current search parameters
         
         Returns:
-            tuple: (query, max_results)
+            tuple: (query, scroll_count)
         """
         query = self.search_var.get().strip()
         try:
-            max_results = int(self.max_results_var.get())
+            scroll_count = int(self.scroll_count_var.get())
         except ValueError:
-            max_results = 20
+            scroll_count = 5
         
-        return query, max_results
+        return query, scroll_count
     
-    def set_search_params(self, query, max_results=20):
+    def set_search_params(self, query, scroll_count=5):
         """
         Set search parameters
         
         Args:
             query (str): Search query
-            max_results (int): Maximum number of results
+            scroll_count (int): Number of scrolls to perform
         """
         self.search_var.set(query)
-        self.max_results_var.set(str(max_results))
+        self.scroll_count_var.set(str(scroll_count))

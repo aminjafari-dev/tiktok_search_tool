@@ -45,13 +45,13 @@ class ChannelExtractor:
         self.max_scrolls = 50  # Maximum number of scrolls to prevent infinite loops
         self.video_load_wait = 3  # Wait time for videos to load
         
-    def extract_channel_videos(self, username, max_videos=None):
+    def extract_channel_videos(self, username, scroll_count=None):
         """
         Extract all videos from a TikTok channel
         
         Args:
             username (str): TikTok username (with or without @)
-            max_videos (int): Maximum number of videos to extract (None for all)
+            scroll_count (int): Number of scrolls to perform to load more videos
             
         Returns:
             list: List of video dictionaries with metadata
@@ -73,7 +73,7 @@ class ChannelExtractor:
                 return []
             
             # Extract all videos by scrolling
-            videos = self._extract_videos_by_scrolling(max_videos)
+            videos = self._extract_videos_by_scrolling(scroll_count)
             
             print(f"✅ Successfully extracted {len(videos)} videos from @{clean_username}")
             return videos
@@ -147,12 +147,12 @@ class ChannelExtractor:
             print(f"❌ Error waiting for channel load: {e}")
             return False
     
-    def _extract_videos_by_scrolling(self, max_videos=None):
+    def _extract_videos_by_scrolling(self, scroll_count=None):
         """
         Extract videos by scrolling through the channel
         
         Args:
-            max_videos (int): Maximum number of videos to extract
+            scroll_count (int): Number of scrolls to perform
             
         Returns:
             list: List of video dictionaries
@@ -160,13 +160,16 @@ class ChannelExtractor:
         print("📜 Starting to scroll through channel videos...")
         
         all_videos = []
-        scroll_count = 0
+        current_scroll = 0
         last_video_count = 0
         no_new_videos_count = 0
         
-        while scroll_count < self.max_scrolls:
-            scroll_count += 1
-            print(f"📜 Scroll {scroll_count}/{self.max_scrolls} - Loading more videos...")
+        # Use provided scroll count or default to max_scrolls
+        max_scrolls = scroll_count if scroll_count is not None else self.max_scrolls
+        
+        while current_scroll < max_scrolls:
+            current_scroll += 1
+            print(f"📜 Scroll {current_scroll}/{max_scrolls} - Loading more videos...")
             
             # Scroll down to load more videos
             self._scroll_to_load_more()
@@ -183,10 +186,11 @@ class ChannelExtractor:
             
             print(f"📊 Found {len(new_videos)} new videos (Total: {len(all_videos)})")
             
-            # Check if we've reached the maximum
-            if max_videos and len(all_videos) >= max_videos:
-                print(f"🎯 Reached maximum video limit: {max_videos}")
-                all_videos = all_videos[:max_videos]
+            # Apply safety limit to prevent excessive results
+            max_limit = SEARCH_CONFIG["max_results_limit"]
+            if len(all_videos) > max_limit:
+                print(f"⚠️  Found {len(all_videos)} videos, limiting to {max_limit} for safety")
+                all_videos = all_videos[:max_limit]
                 break
             
             # Check if no new videos were found
@@ -458,7 +462,7 @@ def test_channel_extractor():
     
     # This would need a real driver instance
     # extractor = ChannelExtractor(driver)
-    # videos = extractor.extract_channel_videos("@username", max_videos=10)
+    # videos = extractor.extract_channel_videos("@username", scroll_count=5)
     # print(f"Extracted {len(videos)} videos")
     
     print("Note: This test requires a WebDriver instance")

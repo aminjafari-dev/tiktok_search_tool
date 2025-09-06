@@ -461,13 +461,13 @@ class TikTokSearchWithLogin:
         self.login_manager = TikTokLoginManager()
         self.browser_manager = None
         
-    def search_with_login(self, query, max_results=None, force_login=False):
+    def search_with_login(self, query, scroll_count=None, force_login=False):
         """
         Search TikTok with automatic login management using same browser
         
         Args:
             query (str): Search term
-            max_results (int): Maximum number of results
+            scroll_count (int): Number of scrolls to perform to load more content
             force_login (bool): Force login prompt even if already logged in
             
         Returns:
@@ -481,8 +481,7 @@ class TikTokSearchWithLogin:
         print("💡 The tool will wait for your confirmation")
         
         if not self.login_manager.ensure_login():
-            print("⚠️  Login failed - continuing with limited results (6 videos max)")
-            max_results = min(max_results or 20, 6)
+            print("⚠️  Login failed - continuing with limited results")
         else:
             print("✅ Login successful - full search results available")
         
@@ -519,9 +518,12 @@ class TikTokSearchWithLogin:
             time.sleep(SEARCH_CONFIG["dynamic_content_wait"])
             
             # Scroll to load more content
-            print("📜 Starting to scroll to load more videos...")
-            for i in range(SEARCH_CONFIG["scroll_iterations"]):
-                print(f"📜 Scroll {i+1}/{SEARCH_CONFIG['scroll_iterations']} - Loading more videos...")
+            if scroll_count is None:
+                scroll_count = SEARCH_CONFIG["default_scroll_count"]
+            
+            print(f"📜 Starting to scroll to load more videos... ({scroll_count} scrolls)")
+            for i in range(scroll_count):
+                print(f"📜 Scroll {i+1}/{scroll_count} - Loading more videos...")
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(SEARCH_CONFIG["scroll_pause"])
                 print(f"✅ Scroll {i+1} completed - waiting for content to load...")
@@ -538,8 +540,11 @@ class TikTokSearchWithLogin:
             print(MESSAGES["found_links"].format(count=len(unique_links)))
             
             if unique_links:
-                # Limit results
-                unique_links = unique_links[:max_results]
+                # Apply safety limit to prevent excessive results
+                max_limit = SEARCH_CONFIG["max_results_limit"]
+                if len(unique_links) > max_limit:
+                    print(f"⚠️  Found {len(unique_links)} links, limiting to {max_limit} for safety")
+                    unique_links = unique_links[:max_limit]
                 
                 # Extract additional info for each video
                 for i, link in enumerate(unique_links, 1):
@@ -612,7 +617,7 @@ def example_usage():
     
     with TikTokSearchWithLogin() as searcher:
         # Search with automatic login management
-        videos = searcher.search_with_login("funny cats", max_results=15)
+        videos = searcher.search_with_login("funny cats", scroll_count=5)
         
         if videos:
             print(f"🎉 Found {len(videos)} videos!")
