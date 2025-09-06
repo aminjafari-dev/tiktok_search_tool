@@ -36,13 +36,13 @@ class ChannelSearcher:
         self.login_manager = None
         self.excel_manager = None
     
-    def search_channel(self, channel_input, max_videos=None):
+    def search_channel(self, channel_input, scroll_count=None):
         """
         Search and extract all videos from a TikTok channel
         
         Args:
             channel_input (str): Channel URL, username, or ID
-            max_videos (int): Maximum number of videos to extract (None for all)
+            scroll_count (int): Number of scrolls to perform to load more videos
             
         Returns:
             list: List of video dictionaries with metadata
@@ -96,7 +96,7 @@ class ChannelSearcher:
                 
                 # Extract all videos from the channel
                 print(f"🎯 Extracting videos from @{username}...")
-                videos = self.extractor.extract_channel_videos(username, max_videos)
+                videos = self.extractor.extract_channel_videos(username, scroll_count)
                 
                 if videos:
                     print(f"🎉 Successfully extracted {len(videos)} videos from @{username}")
@@ -116,13 +116,13 @@ class ChannelSearcher:
             print(f"❌ Error during channel search: {e}")
             return []
     
-    def search_channel_and_save(self, channel_input, max_videos=None, filename=None):
+    def search_channel_and_save(self, channel_input, scroll_count=None, filename=None):
         """
         Search channel and save results to Excel
         
         Args:
             channel_input (str): Channel URL, username, or ID
-            max_videos (int): Maximum number of videos to extract
+            scroll_count (int): Number of scrolls to perform to load more videos
             filename (str): Excel filename (optional)
             
         Returns:
@@ -131,7 +131,7 @@ class ChannelSearcher:
         print(f"🚀 Starting channel search and save for: {channel_input}")
         
         # Search for videos
-        videos = self.search_channel(channel_input, max_videos)
+        videos = self.search_channel(channel_input, scroll_count)
         
         if videos:
             # Generate filename if not provided
@@ -287,7 +287,7 @@ def example_usage():
     
     with ChannelSearcher() as searcher:
         # Search a channel and save to Excel
-        success = searcher.search_channel_and_save("@username", max_videos=20)
+        success = searcher.search_channel_and_save("@username", scroll_count=5)
         
         if success:
             print("✅ Channel search completed successfully!")

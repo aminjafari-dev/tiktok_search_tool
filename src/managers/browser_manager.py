@@ -98,11 +98,19 @@ class BrowserManager:
         time.sleep(SEARCH_CONFIG["dynamic_content_wait"])
         print("✅ Dynamic content should be loaded now")
     
-    def scroll_to_load_content(self):
-        """Scroll down to load more content"""
-        print("📜 Starting to scroll to load more videos...")
-        for i in range(SEARCH_CONFIG["scroll_iterations"]):
-            print(f"📜 Scroll {i+1}/{SEARCH_CONFIG['scroll_iterations']} - Loading more videos...")
+    def scroll_to_load_content(self, scroll_count=None):
+        """
+        Scroll down to load more content
+        
+        Args:
+            scroll_count (int): Number of scrolls to perform. If None, uses default from config.
+        """
+        if scroll_count is None:
+            scroll_count = SEARCH_CONFIG["default_scroll_count"]
+        
+        print(f"📜 Starting to scroll to load more videos... ({scroll_count} scrolls)")
+        for i in range(scroll_count):
+            print(f"📜 Scroll {i+1}/{scroll_count} - Loading more videos...")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(SEARCH_CONFIG["scroll_pause"])
             print(f"✅ Scroll {i+1} completed - waiting for content to load...")

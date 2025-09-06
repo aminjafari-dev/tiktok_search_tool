@@ -24,19 +24,19 @@ class TikTokSearcher:
         self.browser_manager = None
         self.excel_manager = None
     
-    def search_tiktok(self, query, max_results=None):
+    def search_tiktok(self, query, scroll_count=None):
         """
         Search for TikTok videos using Selenium to handle dynamic content
         
         Args:
             query (str): Search term
-            max_results (int): Maximum number of results to find
+            scroll_count (int): Number of scrolls to perform to load more content
             
         Returns:
             list: List of dictionaries with video info
         """
-        if max_results is None:
-            max_results = SEARCH_CONFIG["default_max_results"]
+        if scroll_count is None:
+            scroll_count = SEARCH_CONFIG["default_scroll_count"]
         
         print(MESSAGES["searching"].format(query=query))
         
@@ -57,7 +57,7 @@ class TikTokSearcher:
             self.browser_manager.wait_for_dynamic_content()
             
             # Scroll to load more content
-            self.browser_manager.scroll_to_load_content()
+            self.browser_manager.scroll_to_load_content(scroll_count)
             
             # Get page source
             page_source = self.browser_manager.get_page_source()
@@ -69,8 +69,11 @@ class TikTokSearcher:
             print(MESSAGES["found_links"].format(count=len(unique_links)))
             
             if unique_links:
-                # Limit results
-                unique_links = unique_links[:max_results]
+                # Apply safety limit to prevent excessive results
+                max_limit = SEARCH_CONFIG["max_results_limit"]
+                if len(unique_links) > max_limit:
+                    print(f"⚠️  Found {len(unique_links)} links, limiting to {max_limit} for safety")
+                    unique_links = unique_links[:max_limit]
                 
                 # Extract additional info for each video
                 for i, link in enumerate(unique_links, 1):
@@ -155,13 +158,13 @@ class TikTokSearcher:
         """
         return self.save_to_excel(videos, filename)
     
-    def search_and_save(self, query, max_results=None, filename=None):
+    def search_and_save(self, query, scroll_count=None, filename=None):
         """
         Search for videos and save to Excel
         
         Args:
             query (str): Search term
-            max_results (int): Maximum number of results (optional)
+            scroll_count (int): Number of scrolls to perform (optional)
             filename (str): Excel filename (optional)
             
         Returns:
@@ -170,7 +173,7 @@ class TikTokSearcher:
         print(f"🚀 Starting TikTok search for: {query}")
         
         # Search for videos
-        videos = self.search_tiktok(query, max_results)
+        videos = self.search_tiktok(query, scroll_count)
         
         if videos:
             # Generate filename if not provided

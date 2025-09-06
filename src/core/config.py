@@ -15,11 +15,11 @@ BROWSER_CONFIG = {
 
 # Search Configuration
 SEARCH_CONFIG = {
-    "default_max_results": 20,
+    "default_scroll_count": 5,  # Default number of scrolls to perform
     "page_load_timeout": 30,  # seconds
     "dynamic_content_wait": 15,  # seconds - increased for visibility
     "scroll_pause": 5,  # seconds between scrolls - increased for visibility
-    "scroll_iterations": 5  # increased number of scrolls
+    "max_results_limit": 1000  # Maximum number of results to collect (safety limit)
 }
 
 # URL Patterns for finding TikTok videos
