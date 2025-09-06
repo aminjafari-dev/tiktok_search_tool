@@ -162,7 +162,7 @@ class SearchWidget(tk.Frame):
         self.scroll_count_combo = ttk.Combobox(
             self.controls_frame,
             textvariable=self.scroll_count_var,
-            values=["3", "5", "10", "15", "20"],
+            values=["3", "5", "10", "15", "20", "50", "100", "200", "300", "400", "500"],
             state="readonly",
             width=8
         )
