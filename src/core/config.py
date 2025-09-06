@@ -10,7 +10,12 @@ BROWSER_CONFIG = {
     "disable_dev_shm_usage": False,  # Enable shared memory usage
     "disable_gpu": False,  # Enable GPU acceleration
     "window_size": "1920,1080",
-    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    # Proxy configuration - uncomment and set if needed
+    # "proxy": {
+    #     "http": "http://your-proxy-server:port",
+    #     "https": "https://your-proxy-server:port"
+    # }
 }
 
 # Search Configuration

@@ -49,9 +49,22 @@ class BrowserManager:
             chrome_options.add_argument(f"--window-size={BROWSER_CONFIG['window_size']}")
             chrome_options.add_argument(f"--user-agent={BROWSER_CONFIG['user_agent']}")
             
-            # Install and setup Chrome driver
-            service = Service(ChromeDriverManager().install())
-            self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            # Try to use local Chrome driver first
+            try:
+                service = Service("chromedriver.exe")  # Look for chromedriver in current directory
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            except Exception as local_error:
+                try:
+                    # Fallback to ChromeDriverManager
+                    print("⚠️  Local Chrome driver not found, attempting automatic download...")
+                    service = Service(ChromeDriverManager().install())
+                    self.driver = webdriver.Chrome(service=service, options=chrome_options)
+                except Exception as manager_error:
+                    print("❌ Both local and automatic Chrome driver setup failed")
+                    print("💡 Please download Chrome driver manually from:")
+                    print("https://googlechromelabs.github.io/chrome-for-testing/")
+                    print("💡 Place chromedriver.exe in the same directory as your script")
+                    raise Exception(f"Chrome driver setup failed: {str(manager_error)}")
             
         except Exception as e:
             print(f"❌ Error setting up Chrome driver: {e}")
